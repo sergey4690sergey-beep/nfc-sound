@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NFC Sound</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; background: #111827; color: #f9fafb; }
+    main { width: min(360px, calc(100% - 64px)); padding: 32px; text-align: center; }
+    h1 { font-size: 32px; margin-bottom: 12px; }
+    p { color: #cbd5e1; line-height: 1.6; min-height: 52px; }
+    button { background: #a5f3fc; color: #083344; border: 0; border-radius: 16px; padding: 18px 24px; font: 700 18px system-ui; cursor: pointer; width: 100%; }
+    button:focus-visible { outline: 3px solid white; outline-offset: 5px; }
+    audio { display: block; width: 100%; margin: 24px 0; }
+    a { color: #a5f3fc; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>NFC Sound</h1>
+    <p id="status" role="status" aria-live="polite">Пробуем включить звук…</p>
+    <button id="play" type="button">▶ Воспроизвести</button>
+    <audio id="audio" src="sound.mp3" autoplay preload="auto" controls playsinline></audio>
+    <a href="sound.mp3">Открыть MP3</a>
+    <noscript><p>Нажмите кнопку воспроизведения в аудиоплеере.</p></noscript>
+  </main>
+  <script>
+    const audio = document.getElementById('audio');
+    const button = document.getElementById('play');
+    const status = document.getElementById('status');
+    audio.muted = false;
+    audio.volume = 1;
+    async function play() {
+      try {
+        await audio.play();
+      } catch (error) {
+        status.textContent = error.name === 'NotAllowedError'
+          ? 'Нажмите «Воспроизвести», чтобы включить звук.'
+          : 'Не удалось включить звук. Попробуйте ещё раз или откройте MP3.';
+      }
+    }
+    button.addEventListener('click', () => audio.paused ? play() : audio.pause());
+    audio.addEventListener('playing', () => {
+      status.textContent = 'Звук воспроизводится';
+      button.textContent = 'Ⅱ Пауза';
+    });
+    audio.addEventListener('pause', () => {
+      status.textContent = audio.ended ? 'Воспроизведение завершено' : 'На паузе';
+      button.textContent = '▶ Воспроизвести';
+    });
+    audio.addEventListener('ended', () => {
+      status.textContent = 'Воспроизведение завершено';
+      button.textContent = '↻ Ещё раз';
+    });
+    audio.addEventListener('error', () => {
+      status.textContent = 'Не удалось загрузить MP3. Проверьте подключение и обновите страницу.';
+    });
+    play();
+  </script>
+</body>
+</html>
+
